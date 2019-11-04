@@ -952,7 +952,7 @@ void halrf_support_ability_debug(void *dm_void, char input[][16], u32 *_used,
 			 "04. (( %s ))HAL_RF_TXGAPK\n",
 			 ((rf->rf_supportability & HAL_RF_TXGAPK) ? ("V") :
 			 (".")));
-#if (RTL8192F_SUPPORT == 1)
+#ifdef CONFIG_2G_BAND_SHIFT
 		PDM_SNPF(out_len, used, output + used, out_len - used,
 			 "07. (( %s ))HAL_2GBAND_SHIFT\n",
 			 ((rf->rf_supportability & HAL_2GBAND_SHIFT) ? ("V") :
@@ -974,6 +974,7 @@ void halrf_support_ability_debug(void *dm_void, char input[][16], u32 *_used,
 	*_out_len = out_len;
 }
 
+#ifdef CONFIG_2G_BAND_SHIFT
 void halrf_support_band_shift_debug(void *dm_void, char input[][16], u32 *_used,
 				    char *output, u32 *_out_len)
 {
@@ -996,16 +997,19 @@ void halrf_support_band_shift_debug(void *dm_void, char input[][16], u32 *_used,
 	} else {
 		if (dm_value[0] == 01) {
 			rf->rf_shift_band = HAL_RF_2P3;
+			halrf_lck_trigger(dm);
 			PDM_SNPF(out_len, used, output + used, out_len - used,
 				 "\n[rf_shift_band] = %d\nRF Band Shift to 2.3G!\n",
 				 rf->rf_shift_band);
 		} else if (dm_value[0] == 02) {
 			rf->rf_shift_band = HAL_RF_2P5;
+			halrf_lck_trigger(dm);
 			PDM_SNPF(out_len, used, output + used, out_len - used,
 				 "\n[rf_shift_band] = %d\nRF Band Shift to 2.5G!\n",
 				 rf->rf_shift_band);
 		} else {
 			rf->rf_shift_band = HAL_RF_2P4;
+			halrf_lck_trigger(dm);
 			PDM_SNPF(out_len, used, output + used, out_len - used,
 				 "\n[rf_shift_band] = %d\nNo RF Band Shift,default: 2.4G!\n",
 				 rf->rf_shift_band);
@@ -1015,6 +1019,7 @@ void halrf_support_band_shift_debug(void *dm_void, char input[][16], u32 *_used,
 	*_out_len = out_len;
 #endif
 }
+#endif
 
 void halrf_cmn_info_init(void *dm_void, enum halrf_cmninfo_init cmn_info,
 			 u32 value)
@@ -1188,7 +1193,9 @@ void halrf_supportability_init_mp(void *dm_void)
 			HAL_RF_TX_PWR_TRACK |
 			HAL_RF_IQK |
 			HAL_RF_LCK |
-			/*@HAL_2GBAND_SHIFT |*/
+#ifdef CONFIG_2G_BAND_SHIFT
+			HAL_2GBAND_SHIFT |
+#endif
 			/*@HAL_RF_DPK |*/
 			/*@HAL_RF_TXGAPK |*/
 			0;
@@ -1275,7 +1282,9 @@ void halrf_supportability_init(void *dm_void)
 			HAL_RF_TX_PWR_TRACK |
 			HAL_RF_IQK |
 			HAL_RF_LCK |
-			/*HAL_2GBAND_SHIFT |*/
+#ifdef CONFIG_2G_BAND_SHIFT
+			HAL_2GBAND_SHIFT |
+#endif
 			/*@HAL_RF_DPK |*/
 			/*@HAL_RF_TXGAPK |*/
 			0;

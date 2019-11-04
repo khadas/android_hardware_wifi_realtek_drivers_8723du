@@ -569,7 +569,7 @@ odm_read_and_config_mp_8723d_agc_tab(struct dm_struct *dm)
 u32
 odm_get_version_mp_8723d_agc_tab(void)
 {
-		return 37;
+		return 39;
 }
 
 /******************************************************************************
@@ -582,7 +582,7 @@ u32 array_mp_8723d_phy_reg[] = {
 		0x808, 0x0000FC00,
 		0x80C, 0x0000000A,
 		0x810, 0x10001331,
-		0x814, 0x020C3D10,
+		0x814, 0x020C3910,
 		0x818, 0x00200385,
 		0x81C, 0x00000000,
 		0x820, 0x01000100,
@@ -858,7 +858,7 @@ odm_read_and_config_mp_8723d_phy_reg(struct dm_struct *dm)
 u32
 odm_get_version_mp_8723d_phy_reg(void)
 {
-		return 37;
+		return 39;
 }
 
 /******************************************************************************

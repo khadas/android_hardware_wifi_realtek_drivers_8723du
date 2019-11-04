@@ -225,12 +225,12 @@ u16 phydm_show_fraction_num(u32 frac_val, u8 bit_num)
 	return val;
 }
 
-u32 phydm_gen_bitmask(u8 mask_num)
+u64 phydm_gen_bitmask(u8 mask_num)
 {
 	u8 i = 0;
-	u32 bitmask = 0;
+	u64 bitmask = 0;
 
-	if (mask_num > 32)
+	if (mask_num > 64)
 		return 1;
 
 	for (i = 0; i < mask_num; i++)

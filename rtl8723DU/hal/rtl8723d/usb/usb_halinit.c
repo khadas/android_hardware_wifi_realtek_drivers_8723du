@@ -208,6 +208,14 @@ static u32 _InitPowerOn_8723du(PADAPTER padapter)
 	value8 = _TRUE;
 	rtw_hal_set_hwreg(padapter, HW_VAR_APFM_ON_MAC, &value8);
 
+	value8 = rtw_read8(padapter, REG_SYS_CFG1_8723D + 1);
+	RTW_INFO("%s: %s\n", __func__,
+		(value8 & BIT3) ? "Test Mode" : "Normal Mode");
+
+	value8 = rtw_read8(padapter, REG_SYS_CFG1_8723D + 3);
+	RTW_INFO("%s: %s\n", __func__,
+		(value8 & BIT0) ? "LDO Mode" : "SPS Mode");
+
 	return status;
 }
 

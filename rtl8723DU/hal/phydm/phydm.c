@@ -429,6 +429,11 @@ void phydm_common_info_self_update(struct dm_struct *dm)
 
 	dm->is_dfs_band = phydm_is_dfs_band(dm);
 	dm->phy_dbg_info.show_phy_sts_cnt = 0;
+
+	/*[Link Status Check]*/
+	dm->first_connect = dm->is_linked && !dm->pre_is_linked;
+	dm->first_disconnect = !dm->is_linked && dm->pre_is_linked;
+	dm->pre_is_linked = dm->is_linked;
 }
 
 void phydm_common_info_self_reset(struct dm_struct *dm)
@@ -913,6 +918,7 @@ u64 phydm_supportability_init_ce(void *dm_void)
 			ODM_BB_CCK_PD |
 			ODM_BB_PWR_TRAIN		|
 			ODM_BB_RATE_ADAPTIVE |
+			/*ODM_BB_PATH_DIV |*/
 			ODM_BB_CFO_TRACKING |
 			/*@ODM_BB_ADAPTIVE_SOML |*/
 			ODM_BB_ENV_MONITOR;
@@ -960,7 +966,7 @@ u64 phydm_supportability_init_ce(void *dm_void)
 		support_ability |=
 			ODM_BB_DIG |
 			ODM_BB_RA_MASK |
-			/*@ODM_BB_DYNAMIC_TXPWR	|*/
+			ODM_BB_DYNAMIC_TXPWR	|
 			ODM_BB_FA_CNT |
 			ODM_BB_RSSI_MONITOR |
 			ODM_BB_CCK_PD |
@@ -2484,6 +2490,9 @@ void odm_cmn_info_update(struct dm_struct *dm, u32 cmn_info, u64 value)
 	case ODM_CMNINFO_BT_CONTINUOUS_TURN:
 		dm->is_bt_continuous_turn = (boolean)value;
 		break;
+	case ODM_CMNINFO_RRSR_VAL:
+		dm->dm_ra_table.rrsr_val_init = (u32)value;
+		break;
 	default:
 		break;
 	}
@@ -2992,6 +3001,10 @@ void phydm_dc_cancellation(struct dm_struct *dm)
 		return;
 	if ((dm->support_ic_type & ODM_RTL8192F) &&
 	    dm->cut_version == ODM_CUT_A)
+		return;
+	if (*dm->band_width == CHANNEL_WIDTH_5)
+		return;
+	if (*dm->band_width == CHANNEL_WIDTH_10)
 		return;
 
 	PHYDM_DBG(dm, ODM_COMP_API, "%s ======>\n", __func__);

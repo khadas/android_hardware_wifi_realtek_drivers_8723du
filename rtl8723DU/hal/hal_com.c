@@ -11716,7 +11716,7 @@ u8 SetHwReg(_adapter *adapter, u8 variable, u8 *val)
 			case 1:
 			case 2:
 				/* Notify coex. mechanism after join, whether successful or failed */
-				rtw_btcoex_ConnectNotify(adapter, _FALSE);
+				/* rtw_btcoex_ConnectNotify(adapter, _FALSE); */
 				break;
 			}
 		}

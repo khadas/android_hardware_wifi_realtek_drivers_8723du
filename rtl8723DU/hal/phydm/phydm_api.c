@@ -199,8 +199,10 @@ void phydm_pathb_q_matrix_rotate_en(void *dm_void)
 	if (dm->support_ic_type & ODM_IC_11AC_SERIES) {
 		phydm_iq_gen_en(dm);
 
-		#ifdef PHYDM_COMMON_API_SUPPORT
-		if (!phydm_api_trx_mode(dm, BB_PATH_AB, BB_PATH_AB, true))
+		/*#ifdef PHYDM_COMMON_API_SUPPORT*/
+		/*path selection is controlled by driver*/
+		#if 0
+		if (!phydm_api_trx_mode(dm, BB_PATH_AB, BB_PATH_AB, BB_PATH_AB))
 			return;
 		#endif
 
@@ -216,8 +218,10 @@ void phydm_pathb_q_matrix_rotate_en(void *dm_void)
 	if (dm->support_ic_type & ODM_IC_11N_SERIES) {
 		phydm_iq_gen_en(dm);
 
-		#ifdef PHYDM_COMMON_API_SUPPORT
-		if (!phydm_api_trx_mode(dm, BB_PATH_AB, BB_PATH_AB, true))
+		/*#ifdef PHYDM_COMMON_API_SUPPORT*/
+		/*path selection is controlled by driver*/
+		#if 0
+		if (!phydm_api_trx_mode(dm, BB_PATH_AB, BB_PATH_AB, BB_PATH_AB))
 			return;
 		#endif
 		phydm_dis_cdd(dm);
@@ -310,9 +314,9 @@ void phydm_trx_antenna_setting_init(void *dm_void, u8 num_rf_path)
 		  __func__, dm->tx_ant_status, dm->rx_ant_status);
 }
 
-void phydm_config_ofdm_tx_path(void *dm_void, u32 path)
+void phydm_config_ofdm_tx_path(void *dm_void, enum bb_path path)
 {
-#if (RTL8192E_SUPPORT || RTL8812A_SUPPORT)
+#if (RTL8192E_SUPPORT || RTL8192F_SUPPORT || RTL8812A_SUPPORT)
 	struct dm_struct *dm = (struct dm_struct *)dm_void;
 	u8 ofdm_tx_path = 0x33;
 
@@ -320,12 +324,13 @@ void phydm_config_ofdm_tx_path(void *dm_void, u32 path)
 		return;
 
 	switch (dm->support_ic_type) {
-	#if (RTL8192E_SUPPORT)
+	#if (RTL8192E_SUPPORT || RTL8192F_SUPPORT)
 	case ODM_RTL8192E:
+	case ODM_RTL8192F:
 		if (path == BB_PATH_A)
-			odm_set_bb_reg(dm, R_0x90c, MASKDWORD, 0x81121111);
+			odm_set_bb_reg(dm, R_0x90c, MASKDWORD, 0x81121313);
 		else if (path == BB_PATH_B)
-			odm_set_bb_reg(dm, R_0x90c, MASKDWORD, 0x82221222);
+			odm_set_bb_reg(dm, R_0x90c, MASKDWORD, 0x82221323);
 		else if (path == BB_PATH_AB)
 			odm_set_bb_reg(dm, R_0x90c, MASKDWORD, 0x83321333);
 
@@ -352,13 +357,13 @@ void phydm_config_ofdm_tx_path(void *dm_void, u32 path)
 #endif
 }
 
-void phydm_config_ofdm_rx_path(void *dm_void, u32 path)
+void phydm_config_ofdm_rx_path(void *dm_void, enum bb_path path)
 {
 	struct dm_struct *dm = (struct dm_struct *)dm_void;
 	u8 val = 0;
 
-	if (dm->support_ic_type & (ODM_RTL8192E)) {
-#if (RTL8192E_SUPPORT)
+	if (dm->support_ic_type & (ODM_RTL8192E | ODM_RTL8192F)) {
+#if (RTL8192E_SUPPORT || RTL8192F_SUPPORT)
 		if (path == BB_PATH_A)
 			val = 1;
 		else if (path == BB_PATH_B)
@@ -470,6 +475,14 @@ void phydm_config_cck_rx_path(void *dm_void, enum bb_path path)
 			odm_set_bb_reg(dm, R_0xa2c, (BIT(18) | BIT(17)), 1);
 			odm_set_bb_reg(dm, R_0xa2c, (BIT(22) | BIT(21)), 1);
 		}
+	} else if (dm->support_ic_type & ODM_RTL8822B) {
+		if (path == BB_PATH_A) {
+			odm_set_bb_reg(dm, R_0xa04, (BIT(27) | BIT(26)), 0);
+			odm_set_bb_reg(dm, R_0xa04, (BIT(25) | BIT(24)), 0);
+		} else {
+			odm_set_bb_reg(dm, R_0xa04, (BIT(27) | BIT(26)), 1);
+			odm_set_bb_reg(dm, R_0xa04, (BIT(25) | BIT(24)), 1);
+		}
 	}
 
 #endif
@@ -484,7 +497,7 @@ void phydm_config_cck_tx_path(void *dm_void, enum bb_path path)
 		odm_set_bb_reg(dm, R_0xa04, 0xf0000000, 0x8);
 	else if (path == BB_PATH_B)
 		odm_set_bb_reg(dm, R_0xa04, 0xf0000000, 0x4);
-	else if (path == BB_PATH_AB)
+	else /*if (path == BB_PATH_AB)*/
 		odm_set_bb_reg(dm, R_0xa04, 0xf0000000, 0xc);
 #endif
 }
@@ -500,12 +513,12 @@ void phydm_config_trx_path_v2(void *dm_void, char input[][16], u32 *_used,
 	u32 val[10] = {0};
 	char help[] = "-h";
 	u8 i = 0, input_idx = 0;
-	enum bb_path tx_path, rx_path;
-	boolean dbg_mode_en, tx2_path_en;
+	enum bb_path tx_path, rx_path, tx_path_ctrl;
+	boolean dbg_mode_en;
 
 	if (!(dm->support_ic_type &
 	    (ODM_RTL8822B | ODM_RTL8197F | ODM_RTL8192F | ODM_RTL8822C |
-	     ODM_RTL8814B)))
+	     ODM_RTL8814B | ODM_RTL8812F | ODM_RTL8197G)))
 		return;
 
 	for (i = 0; i < 5; i++) {
@@ -521,19 +534,30 @@ void phydm_config_trx_path_v2(void *dm_void, char input[][16], u32 *_used,
 	dbg_mode_en = (boolean)val[0];
 	tx_path = (enum bb_path)val[1];
 	rx_path = (enum bb_path)val[2];
-	tx2_path_en = (boolean)val[3];
+	tx_path_ctrl = (enum bb_path)val[3];
 
 	if ((strcmp(input[1], help) == 0)) {
-		PDM_SNPF(out_len, used, output + used, out_len - used,
-			 "{en} {tx_path} {rx_path} {1ss_tx_2_path_en}\n");
+		if (dm->support_ic_type & (ODM_RTL8822C | ODM_RTL8822B |
+					   ODM_RTL8192F)) {
+			PDM_SNPF(out_len, used, output + used, out_len - used,
+				 "{en} {tx_path} {rx_path} {ff:auto, else:1ss_tx_path}\n"
+				 );
+		} else {
+			PDM_SNPF(out_len, used, output + used, out_len - used,
+				 "{en} {tx_path} {rx_path} {is_tx_2_path}\n");
+		}
 
 	} else if (dbg_mode_en) {
 		dm->is_disable_phy_api = false;
-		phydm_api_trx_mode(dm, tx_path, rx_path, tx2_path_en);
+		phydm_api_trx_mode(dm, tx_path, rx_path, tx_path_ctrl);
 		dm->is_disable_phy_api = true;
 		PDM_SNPF(out_len, used, output + used, out_len - used,
-			 "tx_path = 0x%x, rx_path = 0x%x, tx2_path_en = %d\n",
-			 tx_path, rx_path, tx2_path_en);
+			 "T/RX path = 0x%x/0x%x, tx_path_ctrl=%d\n",
+			 tx_path, rx_path, tx_path_ctrl);
+		PDM_SNPF(out_len, used, output + used, out_len - used,
+			 "T/RX path_en={0x%x, 0x%x}, tx_1ss=%d\n",
+			 dm->tx_ant_status, dm->rx_ant_status,
+			 dm->tx_1ss_status);
 	} else {
 		dm->is_disable_phy_api = false;
 		PDM_SNPF(out_len, used, output + used, out_len - used,
@@ -622,13 +646,16 @@ void phydm_config_trx_path(void *dm_void, char input[][16], u32 *_used,
 	struct dm_struct *dm = (struct dm_struct *)dm_void;
 
 	if (dm->support_ic_type & (ODM_RTL8192E | ODM_RTL8812)) {
-		#if (RTL8192E_SUPPORT || RTL8812A_SUPPORT || RTL8814B_SUPPORT)
+		#if (RTL8192E_SUPPORT || RTL8812A_SUPPORT)
 		phydm_config_trx_path_v1(dm, input, _used, output, _out_len);
 		#endif
 	} else if (dm->support_ic_type & (ODM_RTL8822B | ODM_RTL8197F |
-		   ODM_RTL8192F | ODM_RTL8822C)) {
+		   ODM_RTL8192F | ODM_RTL8822C | ODM_RTL8812F |
+		   ODM_RTL8197G | ODM_RTL8814B)) {
 		#if (RTL8822B_SUPPORT || RTL8197F_SUPPORT ||\
-		     RTL8192F_SUPPORT || RTL8822C_SUPPORT || RTL8814B_SUPPORT)
+		     RTL8192F_SUPPORT || RTL8822C_SUPPORT ||\
+		     RTL8814B_SUPPORT || RTL8812F_SUPPORT ||\
+		     RTL8197G_SUPPORT)
 		phydm_config_trx_path_v2(dm, input, _used, output, _out_len);
 		#endif
 	}
@@ -646,9 +673,11 @@ void phydm_tx_2path(void *dm_void)
 	if (!(dm->support_ic_type & ODM_IC_2SS))
 		return;
 
-	#if (RTL8822B_SUPPORT || RTL8192F_SUPPORT || RTL8197F_SUPPORT)
-	if (dm->support_ic_type & (ODM_RTL8822B | ODM_RTL8197F | ODM_RTL8192F))
-		phydm_api_trx_mode(dm, BB_PATH_AB, rx_path, true);
+	#if (RTL8822B_SUPPORT || RTL8192F_SUPPORT || RTL8197F_SUPPORT ||\
+	     RTL8822C_SUPPORT || RTL8812F_SUPPORT || RTL8197G_SUPPORT)
+	if (dm->support_ic_type & (ODM_RTL8822B | ODM_RTL8197F | ODM_RTL8192F |
+	    ODM_RTL8822C | ODM_RTL8812F | ODM_RTL8197G))
+		phydm_api_trx_mode(dm, BB_PATH_AB, rx_path, BB_PATH_AB);
 	#endif
 
 	#if (RTL8812A_SUPPORT || RTL8192E_SUPPORT)
@@ -2529,51 +2558,73 @@ phydm_api_switch_bw_channel(void *dm_void, u8 ch, u8 pri_ch,
 
 boolean
 phydm_api_trx_mode(void *dm_void, enum bb_path tx_path, enum bb_path rx_path,
-		   boolean is_2tx)
+		   enum bb_path tx_path_ctrl)
 {
 	struct dm_struct *dm = (struct dm_struct *)dm_void;
 	boolean ret = false;
+	boolean is_2tx = false;
 
-#if (RTL8822B_SUPPORT)
-	if (dm->support_ic_type & ODM_RTL8822B)
-		ret = config_phydm_trx_mode_8822b(dm, tx_path, rx_path, is_2tx);
-#endif
+	if (tx_path_ctrl == BB_PATH_AB)
+		is_2tx = true;
 
-#if (RTL8197F_SUPPORT)
-	if (dm->support_ic_type & ODM_RTL8197F)
+	switch (dm->support_ic_type) {
+	#if (RTL8822B_SUPPORT)
+	case ODM_RTL8822B:
+		ret = config_phydm_trx_mode_8822b(dm, tx_path, rx_path,
+						  tx_path_ctrl);
+		break;
+	#endif
+
+	#if (RTL8197F_SUPPORT)
+	case ODM_RTL8197F:
 		ret = config_phydm_trx_mode_8197f(dm, tx_path, rx_path, is_2tx);
-#endif
+		break;
+	#endif
 
-#if (RTL8192F_SUPPORT)
-	if (dm->support_ic_type & ODM_RTL8192F)
-		ret = config_phydm_trx_mode_8192f(dm, tx_path, rx_path, is_2tx);
-#endif
+	#if (RTL8192F_SUPPORT)
+	case ODM_RTL8192F:
+		ret = config_phydm_trx_mode_8192f(dm, tx_path, rx_path,
+						  tx_path_ctrl);
+		break;
+	#endif
 
-#if (RTL8198F_SUPPORT)
-	if (dm->support_ic_type & ODM_RTL8198F)
+	#if (RTL8198F_SUPPORT)
+	case ODM_RTL8198F:
 		ret = config_phydm_trx_mode_8198f(dm, tx_path, rx_path, is_2tx);
-#endif
+		break;
+	#endif
 
-/*#if (RTL8814B_SUPPORT)
-	if (dm->support_ic_type & ODM_RTL8814B)
+	#if 0/*(RTL8814B_SUPPORT)*/
+	case ODM_RTL8814B:
 		ret = config_phydm_trx_mode_8814b(dm, tx_path, rx_path, is_2tx);
-#endif
-*/
-#if (RTL8822C_SUPPORT)
-	if (dm->support_ic_type & ODM_RTL8822C)
-		ret = config_phydm_trx_mode_8822c(dm, tx_path, rx_path, is_2tx);
-#endif
+		break;
+	#endif
 
-#if (RTL8812F_SUPPORT)
-	if (dm->support_ic_type & ODM_RTL8812F)
+	#if (RTL8822C_SUPPORT)
+	case ODM_RTL8822C:
+		ret = config_phydm_trx_mode_8822c(dm, tx_path, rx_path,
+						  tx_path_ctrl);
+		break;
+	#endif
+
+	#if (RTL8812F_SUPPORT)
+	case ODM_RTL8812F:
 		ret = config_phydm_trx_mode_8812f(dm, tx_path, rx_path, is_2tx);
-#endif
+		break;
+	#endif
 
-#if (RTL8721D_SUPPORT)
-	if (dm->support_ic_type & ODM_RTL8721D)
+	#if (RTL8197G_SUPPORT)
+	case ODM_RTL8197G:
+		ret = config_phydm_trx_mode_8197g(dm, tx_path, rx_path, is_2tx);
+		break;
+	#endif
+
+	#if (RTL8721D_SUPPORT)
+	case ODM_RTL8721D:
 		ret = config_phydm_trx_mode_8721d(dm, tx_path, rx_path, is_2tx);
-#endif
-
+		break;
+	#endif
+	}
 	return ret;
 }
 #else

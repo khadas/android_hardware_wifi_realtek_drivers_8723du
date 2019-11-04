@@ -106,6 +106,15 @@ enum phydm_rateid_idx {
 	PHYDM_ARFR6_AC_4SS	= 16
 };
 
+enum phydm_qam_order {
+	PHYDM_QAM_CCK	= 0,
+	PHYDM_QAM_BPSK	= 1,
+	PHYDM_QAM_QPSK	= 2,
+	PHYDM_QAM_16QAM	= 3,
+	PHYDM_QAM_64QAM	= 4,
+	PHYDM_QAM_256QAM = 5
+};
+
 #if (RATE_ADAPTIVE_SUPPORT == 1)/* @88E RA */
 
 struct _phydm_txstatistic_ {
@@ -176,6 +185,9 @@ struct ra_table {
 	u8	ra_ofst_direc; /*RA_offset_direction*/
 	u8	up_ramask_cnt; /*@force update_ra_mask counter*/
 	u8	up_ramask_cnt_tmp; /*@Just for debug, should be removed latter*/
+	u32	rrsr_val_init; /*0x440*/
+	u32	rrsr_val_curr; /*0x440*/
+	boolean dynamic_rrsr_en;
 #if 0	/*@CONFIG_RA_DYNAMIC_RTY_LIMIT*/
 	u8	per_rate_retrylimit_20M[ODM_NUM_RATE_IDX];
 	u8	per_rate_retrylimit_40M[ODM_NUM_RATE_IDX];
@@ -222,6 +234,8 @@ void phydm_print_rate_2_buff(void *dm_void, u8 rate, char *buf, u16 buf_size);
 void phydm_c2h_ra_report_handler(void *dm_void, u8 *cmd_buf, u8 cmd_len);
 
 u8 phydm_rate_order_compute(void *dm_void, u8 rate_idx);
+
+void phydm_rrsr_set_register(void *dm_void, u32 rrsr_val);
 
 void phydm_ra_info_watchdog(void *dm_void);
 

@@ -129,6 +129,7 @@ u32 array_mp_8723d_mac_reg[] = {
 		0x02F, 0x00000010,
 		0x077, 0x00000007,
 		0x421, 0x0000000F,
+		0x422, 0x00000078,
 		0x428, 0x0000000A,
 		0x429, 0x00000010,
 		0x430, 0x00000000,
@@ -296,7 +297,7 @@ odm_read_and_config_mp_8723d_mac_reg(struct dm_struct *dm)
 u32
 odm_get_version_mp_8723d_mac_reg(void)
 {
-		return 37;
+		return 39;
 }
 
 #endif /* end of HWIMG_SUPPORT*/

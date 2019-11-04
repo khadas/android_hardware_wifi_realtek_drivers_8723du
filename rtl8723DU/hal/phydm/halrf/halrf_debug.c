@@ -139,7 +139,9 @@ enum halrf_CMD_ID {
 	HALRF_IQK_INFO,
 	HALRF_IQK,
 	HALRF_IQK_DEBUG,
+#ifdef CONFIG_2G_BAND_SHIFT
 	HAL_BAND_SHIFT,
+#endif
 };
 
 struct halrf_command halrf_cmd_ary[] = {
@@ -150,7 +152,9 @@ struct halrf_command halrf_cmd_ary[] = {
 	{"iqk_info", HALRF_IQK_INFO},
 	{"iqk", HALRF_IQK},
 	{"iqk_dbg", HALRF_IQK_DEBUG},
+#ifdef CONFIG_2G_BAND_SHIFT
 	{"band_shift", HAL_BAND_SHIFT},
+#endif
 };
 
 void halrf_cmd_parser(void *dm_void, char input[][16], u32 *_used, char *output,
@@ -194,10 +198,12 @@ void halrf_cmd_parser(void *dm_void, char input[][16], u32 *_used, char *output,
 		halrf_support_ability_debug(dm, &input[0], &used, output,
 					    &out_len);
 		break;
+#ifdef CONFIG_2G_BAND_SHIFT
 	case HAL_BAND_SHIFT:
 		halrf_support_band_shift_debug(dm, &input[0], &used, output,
 					       &out_len);
 		break;
+#endif
 	case HALRF_DBG_COMP:
 		halrf_debug_trace(dm, &input[0], &used, output, &out_len);
 		break;

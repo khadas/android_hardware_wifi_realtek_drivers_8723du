@@ -462,6 +462,7 @@ enum odm_cmninfo {
 	ODM_CMNINFO_POWER_TRAINING,
 	ODM_CMNINFO_DFS_REGION_DOMAIN,
 	ODM_CMNINFO_BT_CONTINUOUS_TURN,
+	ODM_CMNINFO_RRSR_VAL,
 	/*@------------CALL BY VALUE-------------*/
 
 	/*@Dynamic ptr array hook itms.*/
@@ -822,6 +823,9 @@ struct dm_struct {
 	boolean			is_wifi_direct;
 	boolean			is_wifi_display;
 	boolean			is_linked;
+	boolean			pre_is_linked;
+	boolean			first_connect;
+	boolean			first_disconnect;
 	boolean			bsta_state;
 	u8			rssi_min;
 	u8			rssi_min_macid;
@@ -853,6 +857,16 @@ struct dm_struct {
 	u64			rssi_trsw_iso;
 	u8			tx_ant_status;
 	u8			rx_ant_status;
+	#ifdef PHYDM_COMPILE_ABOVE_4SS
+	enum bb_path		tx_4ss_status; /*@Use N-X for 4STS rate*/
+	#endif
+	#ifdef PHYDM_COMPILE_ABOVE_3SS
+	enum bb_path		tx_3ss_status; /*@Use N-X for 3STS rate*/
+	#endif
+	#ifdef PHYDM_COMPILE_ABOVE_2SS
+	enum bb_path		tx_2ss_status; /*@Use N-X for 2STS rate*/
+	#endif
+	enum bb_path		tx_1ss_status; /*@Use N-X for 1STS rate*/
 	u8			cck_lna_idx;
 	u8			cck_vga_idx;
 	u8			curr_station_id;

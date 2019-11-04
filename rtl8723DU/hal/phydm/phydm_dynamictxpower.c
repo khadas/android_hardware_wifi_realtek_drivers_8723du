@@ -85,7 +85,11 @@ u8 phydm_pwr_lv_mapping_2ndtype(u8 tx_pwr_lv)
 void phydm_dtp_fill_cmninfo_2ndtype(void *dm_void, u8 macid, u8 dtp_lvl)
 {
 	struct dm_struct *dm = (struct dm_struct *)dm_void;
+	struct cmn_sta_info *sta = dm->phydm_sta_info[macid];
 	struct dtp_info *dtp = NULL;
+
+	if (!is_sta_active(sta))
+		return;
 	dtp = &dm->phydm_sta_info[macid]->dtp_stat;
 	if (!(dm->support_ability & ODM_BB_DYNAMIC_TXPWR))
 		return;
@@ -326,8 +330,12 @@ void phydm_dynamic_response_power(void *dm_void)
 void phydm_dtp_fill_cmninfo(void *dm_void, u8 macid, u8 dtp_lvl)
 {
 	struct dm_struct *dm = (struct dm_struct *)dm_void;
+	struct cmn_sta_info *sta = dm->phydm_sta_info[macid];
 	struct dtp_info *dtp = NULL;
-	dtp = &dm->phydm_sta_info[macid]->dtp_stat;
+
+	if (!is_sta_active(sta))
+		return;
+	dtp = &sta->dtp_stat;
 	if (!(dm->support_ability & ODM_BB_DYNAMIC_TXPWR))
 		return;
 	dtp->dyn_tx_power = phydm_pwr_lv_mapping(dtp_lvl);
@@ -374,8 +382,12 @@ void phydm_dtp_per_sta(void *dm_void, u8 macid)
 void odm_set_dyntxpwr(void *dm_void, u8 *desc, u8 macid)
 {
 	struct dm_struct *dm = (struct dm_struct *)dm_void;
+	struct cmn_sta_info *sta = dm->phydm_sta_info[macid];
 	struct dtp_info *dtp = NULL;
-	dtp = &dm->phydm_sta_info[macid]->dtp_stat;
+
+	if (!is_sta_active(sta))
+		return;
+	dtp = &sta->dtp_stat;
 	if (!(dm->support_ability & ODM_BB_DYNAMIC_TXPWR))
 		return;
 	if (dm->fill_desc_dyntxpwr)

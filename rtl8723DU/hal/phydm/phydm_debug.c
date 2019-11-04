@@ -39,7 +39,7 @@ void phydm_init_debug_setting(struct dm_struct *dm)
 	/*@BB Functions*/
 	/*@DBG_DIG					|*/
 	/*@DBG_RA_MASK					|*/
-	/*@DBG_DYN_TXPWR				|*/
+	/*DBG_DYN_TXPWR					|*/
 	/*@DBG_FA_CNT					|*/
 	/*@DBG_RSSI_MNTR				|*/
 	/*@DBG_CCKPD					|*/

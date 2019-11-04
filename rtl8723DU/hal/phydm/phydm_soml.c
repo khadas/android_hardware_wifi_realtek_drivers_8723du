@@ -881,11 +881,22 @@ void phydm_soml_bytes_acq(void *dm_void, u8 rate_id, u32 length)
 {
 	struct dm_struct *dm = (struct dm_struct *)dm_void;
 	struct adaptive_soml *soml_tab = &dm->dm_soml_table;
+	u8 offset = 0;
 
-	if (rate_id >= ODM_RATEMCS0 && rate_id <= ODM_RATEMCS31)
-		soml_tab->ht_byte[rate_id - ODM_RATEMCS0] += (u16)length;
-	else if (rate_id >= ODM_RATEVHTSS1MCS0 && rate_id <= ODM_RATEVHTSS4MCS9)
-		soml_tab->vht_byte[rate_id - ODM_RATEVHTSS1MCS0] += (u16)length;
+	if (rate_id >= ODM_RATEMCS0 && rate_id <= ODM_RATEMCS31) {
+		offset = rate_id - ODM_RATEMCS0;
+		if (offset > (HT_RATE_IDX - 1))
+			offset = HT_RATE_IDX - 1;
+
+		soml_tab->ht_byte[offset] += (u16)length;
+	} else if (rate_id >= ODM_RATEVHTSS1MCS0 &&
+			   rate_id <= ODM_RATEVHTSS4MCS9) {
+		offset = rate_id - ODM_RATEVHTSS1MCS0;
+		if (offset > (VHT_RATE_IDX - 1))
+			offset = VHT_RATE_IDX - 1;
+
+		soml_tab->vht_byte[offset] += (u16)length;
+		}
 
 }
 

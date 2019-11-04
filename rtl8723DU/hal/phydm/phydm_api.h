@@ -113,6 +113,10 @@ void phydm_config_cck_rx_antenna_init(void *dm_void);
 void phydm_config_trx_path(void *dm_void, char input[][16], u32 *_used,
 			   char *output, u32 *_out_len);
 
+void phydm_config_ofdm_tx_path(void *dm_void, enum bb_path path);
+
+void phydm_config_cck_tx_path(void *dm_void, enum bb_path path);
+
 void phydm_tx_2path(void *dm_void);
 
 void phydm_stop_3_wire(void *dm_void, u8 set_type);
@@ -179,7 +183,7 @@ phydm_api_switch_bw_channel(void *dm_void, u8 central_ch, u8 primary_ch_idx,
 
 boolean
 phydm_api_trx_mode(void *dm_void, enum bb_path tx_path, enum bb_path rx_path,
-		   boolean is_tx2_path);
+		   enum bb_path tx_path_ctrl);
 
 #endif
 

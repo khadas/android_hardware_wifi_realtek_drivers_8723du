@@ -504,8 +504,8 @@ void odm_tx_pwr_track_set_pwr_8723d(void *dm_void, enum pwrtrack_method method,
 			}
 #endif
 
-			odm_set_tx_power_index_by_rate_section(dm, RF_PATH_A, *dm->channel, OFDM);
-			odm_set_tx_power_index_by_rate_section(dm, RF_PATH_A, *dm->channel, HT_MCS0_MCS7);
+			odm_set_tx_power_index_by_rate_section(dm, rf_path, *dm->channel, OFDM);
+			odm_set_tx_power_index_by_rate_section(dm, rf_path, *dm->channel, HT_MCS0_MCS7);
 			cali_info->modify_tx_agc_value_ofdm = cali_info->remnant_ofdm_swing_idx[RF_PATH_A];
 
 			if (final_cck_swing_index > pwr_tracking_limit_cck) {
@@ -584,7 +584,7 @@ void odm_tx_pwr_track_set_pwr_8723d(void *dm_void, enum pwrtrack_method method,
 			} else
 #endif
 
-				odm_set_tx_power_index_by_rate_section(dm, RF_PATH_A, *dm->channel, CCK);
+				odm_set_tx_power_index_by_rate_section(dm, rf_path, *dm->channel, CCK);
 
 			cali_info->modify_tx_agc_value_cck = cali_info->remnant_cck_swing_idx;
 		}
@@ -831,6 +831,7 @@ u8 phy_path_s1_iqk_8723d(struct dm_struct *dm, boolean config_path_s0)
 	/*IQK setting*/
 	/*leave IQK mode*/
 	odm_set_bb_reg(dm, R_0xe28, 0xffffff00, 0x000000);
+	ODM_delay_ms(1);
 	/* --- \A7\EF\BCgTXIQK mode table ---*/
 	odm_set_rf_reg(dm, RF_PATH_A, RF_0xef, RFREGOFFSETMASK, 0x80000);
 	odm_set_rf_reg(dm, RF_PATH_A, RF_0x33, RFREGOFFSETMASK, 0x00004);
@@ -920,6 +921,7 @@ u8 phy_path_s1_iqk_8723d(struct dm_struct *dm, boolean config_path_s0)
 
 	/*leave IQK mode*/
 	odm_set_bb_reg(dm, R_0xe28, 0xffffff00, 0x000000);
+	ODM_delay_ms(1);
 	/*PA/PAD controlled by 0x0*/
 	odm_set_rf_reg(dm, RF_PATH_A, RF_0xdf, 0x800, 0x0);
 	odm_set_rf_reg(dm, RF_PATH_A, RF_0x1, BIT(0), 0x0);
@@ -1066,6 +1068,7 @@ u8 phy_path_s1_rx_iqk_8723d(struct dm_struct *dm, boolean config_path_s0)
 		/*reload RF path*/
 		odm_set_bb_reg(dm, R_0x948, MASKDWORD, path_sel_bb);
 		odm_set_bb_reg(dm, R_0xe28, 0xffffff00, 0x000000);
+		ODM_delay_ms(1);
 		odm_set_rf_reg(dm, RF_PATH_A, RF_0xdf, 0x800, 0x0);
 		odm_set_rf_reg(dm, RF_PATH_A, RF_0x1, BIT(0), 0x0);
 		odm_set_rf_reg(dm, RF_PATH_A, RF_0x2, BIT(0), 0x0);
@@ -1098,6 +1101,7 @@ u8 phy_path_s1_rx_iqk_8723d(struct dm_struct *dm, boolean config_path_s0)
 
 	/*modify RXIQK mode table*/
 	odm_set_bb_reg(dm, R_0xe28, 0xffffff00, 0x000000);
+	ODM_delay_ms(1);
 	odm_set_rf_reg(dm, RF_PATH_A, RF_0xef, 0x80000, 0x1);
 	odm_set_rf_reg(dm, RF_PATH_A, RF_0x33, RFREGOFFSETMASK, 0x00007);
 	odm_set_rf_reg(dm, RF_PATH_A, RF_0x3e, RFREGOFFSETMASK, 0x0005f);
@@ -1154,6 +1158,7 @@ u8 phy_path_s1_rx_iqk_8723d(struct dm_struct *dm, boolean config_path_s0)
 
 	/*leave IQK mode*/
 	odm_set_bb_reg(dm, R_0xe28, 0xffffff00, 0x000000);
+	ODM_delay_ms(1);
 	/*	PA/PAD controlled by 0x0*/
 	odm_set_rf_reg(dm, RF_PATH_A, RF_0xdf, 0x800, 0x0);
 	odm_set_rf_reg(dm, RF_PATH_A, RF_0x1, BIT(0), 0x0);
@@ -1203,6 +1208,7 @@ u8 phy_path_s0_iqk_8723d(struct dm_struct *dm)
 #endif
 
 	odm_set_bb_reg(dm, R_0xe28, 0xffffff00, 0x000000);
+	ODM_delay_ms(1);
 	/*modify TXIQK mode table*/
 	odm_set_rf_reg(dm, RF_PATH_A, RF_0xee, RFREGOFFSETMASK, 0x80000);
 	odm_set_rf_reg(dm, RF_PATH_A, RF_0x33, RFREGOFFSETMASK, 0x00004);
@@ -1286,6 +1292,7 @@ u8 phy_path_s0_iqk_8723d(struct dm_struct *dm)
 	odm_set_bb_reg(dm, R_0x948, MASKDWORD, path_sel_bb);
 	/*leave IQK mode*/
 	odm_set_bb_reg(dm, R_0xe28, 0xffffff00, 0x000000);
+	ODM_delay_ms(1);
 	/*PA/PAD controlled by 0x0*/
 	odm_set_rf_reg(dm, RF_PATH_A, RF_0xde, 0x800, 0x0);
 	odm_set_rf_reg(dm, RF_PATH_A, RF_0x2, BIT(0), 0x0);
@@ -1427,6 +1434,7 @@ u8 phy_path_s0_rx_iqk_8723d(struct dm_struct *dm, boolean config_path_s0)
 		/*reload RF path*/
 		odm_set_bb_reg(dm, R_0x948, MASKDWORD, path_sel_bb);
 		odm_set_bb_reg(dm, R_0xe28, 0xffffff00, 0x000000);
+		ODM_delay_ms(1);
 		odm_set_rf_reg(dm, RF_PATH_A, RF_0xde, 0x800, 0x0);
 		odm_set_rf_reg(dm, RF_PATH_A, RF_0x2, BIT(0), 0x0);
 		odm_set_rf_reg(dm, RF_PATH_A, RF_0x1, BIT(0), 0x0);
@@ -1457,6 +1465,7 @@ u8 phy_path_s0_rx_iqk_8723d(struct dm_struct *dm, boolean config_path_s0)
 	odm_set_bb_reg(dm, R_0xe4c, MASKDWORD, 0x0046a8d1);
 
 	odm_set_bb_reg(dm, R_0xe28, 0xffffff00, 0x000000);
+	ODM_delay_ms(1);
 	odm_set_rf_reg(dm, RF_PATH_A, RF_0xee, 0x80000, 0x1);
 	odm_set_rf_reg(dm, RF_PATH_A, RF_0x33, RFREGOFFSETMASK, 0x00007);
 	odm_set_rf_reg(dm, RF_PATH_A, RF_0x3e, RFREGOFFSETMASK, 0x0005f);
@@ -1511,7 +1520,7 @@ u8 phy_path_s0_rx_iqk_8723d(struct dm_struct *dm, boolean config_path_s0)
 
 	/*leave IQK mode*/
 	odm_set_bb_reg(dm, R_0xe28, 0xffffff00, 0x000000);
-
+	ODM_delay_ms(1);
 	odm_set_rf_reg(dm, RF_PATH_A, RF_0xde, 0x800, 0x0);
 	odm_set_rf_reg(dm, RF_PATH_A, RF_0x2, BIT(0), 0x0);
 	odm_set_rf_reg(dm, RF_PATH_A, RF_0x1, BIT(0), 0x0);
@@ -1768,6 +1777,7 @@ void _phy_path_a_stand_by_8723d(struct dm_struct *dm)
 #if 0
 	/*	odm_set_bb_reg(dm, R_0x840, MASKDWORD, 0x00010000);*/
 #endif
+	ODM_delay_ms(1);
 	odm_set_rf_reg(dm, (enum rf_path)0x0, RF_0x0, RFREGOFFSETMASK, 0x10000);
 	odm_set_bb_reg(dm, R_0xe28, 0xffffff00, 0x808000);
 }
@@ -1776,6 +1786,7 @@ void _phy_path_b_stand_by_8723d(struct dm_struct *dm)
 {
 	RF_DBG(dm, DBG_RF_IQK, "path-S0 standby mode!\n");
 	odm_set_bb_reg(dm, R_0xe28, 0xffffff00, 0x000000);
+	ODM_delay_ms(1);
 	odm_set_rf_reg(dm, (enum rf_path)0x1, RF_0x0, RFREGOFFSETMASK, 0x10000);
 	odm_set_bb_reg(dm, R_0xe28, 0xffffff00, 0x808000);
 }
@@ -2150,7 +2161,7 @@ void _phy_iq_calibrate_8723d(struct dm_struct *dm, s32 result[][8], u8 t,
 	}
 	RF_DBG(dm, DBG_RF_IQK, "IQK:Back to BB mode, load original value!\n");
 	odm_set_bb_reg(dm, R_0xe28, 0xffffff00, 0x000000);
-
+	ODM_delay_ms(1);
 	if (t != 0) {
 		_phy_reload_adda_registers_8723d(dm, ADDA_REG, dm->rf_calibrate_info.ADDA_backup, IQK_ADDA_REG_NUM);
 		/* Reload MAC parameters*/

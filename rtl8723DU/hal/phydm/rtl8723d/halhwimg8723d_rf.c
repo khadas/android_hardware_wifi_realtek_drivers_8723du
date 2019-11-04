@@ -362,7 +362,7 @@ odm_read_and_config_mp_8723d_radioa(struct dm_struct *dm)
 u32
 odm_get_version_mp_8723d_radioa(void)
 {
-		return 37;
+		return 39;
 }
 
 /******************************************************************************
